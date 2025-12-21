@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Posts{% endblock %}
+
+{% block body %}
+    {% for post in posts %}
+        <p><a href="{{ path('post_show', { id: post.id }) }}">{{ post.title|u.truncate(20, "...") }}</a></p>
+    {% endfor %}
+{% endblock %}
