@@ -3,6 +3,8 @@
 {% block title %}Posts{% endblock %}
 
 {% block body %}
+    <a href="{{ path('post_new') }}">New Post</a>
+
     {% for post in posts %}
         <p><a href="{{ path('post_show', { id: post.id }) }}">{{ post.title|u.truncate(20, "...") }}</a></p>
     {% endfor %}

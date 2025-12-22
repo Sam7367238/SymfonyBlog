@@ -3,8 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Post;
+use App\Form\PostType;
 use App\Repository\PostRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -21,8 +24,27 @@ final class PostController extends AbstractController
         ]);
     }
 
-    #[Route("/post/{id}", name: "post_show")]
+    #[Route("/post/{id<\d+>}", name: "post_show")]
     public function show(Post $post): Response {
-        return new Response("");
+        return $this -> render("post/show.html.twig", compact("post"));
+    }
+
+    #[Route("/post/new", name: "post_new")]
+    public function new(Request $request, EntityManagerInterface $entityManager): Response {
+        $post = new Post();
+        $form = $this -> createForm(PostType::class, $post);
+
+        $form -> handleRequest($request);
+
+        if ($form -> isSubmitted() && $form -> isValid()) {
+            $entityManager -> persist($post);
+            $entityManager -> flush();
+
+            $this -> addFlash("status", "Post Created Successfully");
+
+            return $this -> redirectToRoute("post_show", ["id" => $post -> getId()]);
+        }
+
+        return $this -> render("post/new.html.twig", compact("form"));
     }
 }
