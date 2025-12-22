@@ -47,4 +47,35 @@ final class PostController extends AbstractController
 
         return $this -> render("post/new.html.twig", compact("form"));
     }
+
+    #[Route("/post/{id<\d+>}/edit", name: "post_edit")]
+    public function edit(Post $post, Request $request, EntityManagerInterface $entityManager): Response {
+        $form = $this -> createForm(PostType::class, $post);
+
+        $form -> handleRequest($request);
+
+        if ($form -> isSubmitted() && $form -> isValid()) {
+            $entityManager -> flush();
+
+            $this -> addFlash("status", "Post Edited Successfully");
+
+            return $this -> redirectToRoute("post_show", ["id" => $post -> getId()]);
+        }
+
+        return $this -> render("post/edit.html.twig", compact("form"));
+    }
+
+    #[Route("/post/{id<\d+>}/delete", name: "post_delete")]
+    public function delete(Request $request, Post $post, EntityManagerInterface $entityManager): Response {
+        if ($request -> isMethod("POST")) {
+            $entityManager -> remove($post);
+            $entityManager -> flush();
+
+            $this -> addFlash("status", "Post Deleted Successfully");
+
+            return $this -> redirectToRoute("post_index");
+        }
+
+        return $this -> render("post/delete.html.twig", ["id" => $post -> getId()]);
+    }
 }
