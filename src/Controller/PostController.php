@@ -8,6 +8,7 @@ use App\Form\CommentType;
 use App\Form\PostType;
 use App\Repository\PostRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,12 +24,15 @@ final class PostController extends AbstractController
     ) {}
 
     #[Route('/', name: 'post_index')]
-    public function index(): Response
+    public function index(Request $request, PaginatorInterface $paginator): Response
     {
+        $posts = $paginator -> paginate(
+            $this -> postRepository -> findAll(),
+            $request -> query -> getInt("page", 1),
+            15
+        );
 
-        return $this->render('post/index.html.twig', [
-            'posts' => $this -> postRepository -> findAll(),
-        ]);
+        return $this -> render('post/index.html.twig', compact("posts"));
     }
 
     #[Route("/{id<\d+>}", name: "post_show")]

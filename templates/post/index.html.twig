@@ -8,4 +8,8 @@
     {% for post in posts %}
         <p><a href="{{ path('post_show', { id: post.id }) }}">{{ post.title|u.truncate(20, "...") }}</a></p>
     {% endfor %}
+
+    <div>
+        {{ knp_pagination_render(posts) }}
+    </div>
 {% endblock %}
