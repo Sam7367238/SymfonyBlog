@@ -11,6 +11,22 @@
 
     <hr>
 
+    <div>
+        <h3>Comments</h3>
+
+        {% for comment in comments %}
+            <div>
+                <p>{{ comment.content }}</p>
+            </div>
+        {% endfor %}
+
+        <hr>
+
+        {{ form(commentForm) }}
+    </div>
+
+    <hr>
+
     <a href="{{ path('post_edit', { id: post.id }) }}">Edit</a>
     <a href="{{ path('post_delete', { id: post.id }) }}">Delete</a>
 {% endblock %}
