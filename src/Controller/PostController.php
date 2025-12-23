@@ -17,7 +17,10 @@ use Symfony\Component\Routing\Attribute\Route;
 final class PostController extends AbstractController
 {
     
-    public function __construct(private readonly PostRepository $postRepository) {}
+    public function __construct(
+        private readonly PostRepository $postRepository,
+        private readonly EntityManagerInterface $entityManager
+    ) {}
 
     #[Route('/', name: 'post_index')]
     public function index(): Response
@@ -29,11 +32,7 @@ final class PostController extends AbstractController
     }
 
     #[Route("/{id<\d+>}", name: "post_show")]
-    public function show(
-        Post $post, 
-        Request $request, 
-        EntityManagerInterface $entityManager
-    ): Response {
+    public function show(Post $post, Request $request): Response {
         $comments = $post -> getComments();
         $comment = new Comment();
 
@@ -43,8 +42,8 @@ final class PostController extends AbstractController
         if ($commentForm -> isSubmitted() && $commentForm -> isValid()) {
             $comment -> setPost($post);
 
-            $entityManager -> persist($comment);
-            $entityManager -> flush();
+            $this -> entityManager -> persist($comment);
+            $this -> entityManager -> flush();
 
             $this -> addFlash("status", "Comment Added Successfully");
 
@@ -55,15 +54,15 @@ final class PostController extends AbstractController
     }
 
     #[Route("/new", name: "post_new")]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response {
+    public function new(Request $request): Response {
         $post = new Post();
         $form = $this -> createForm(PostType::class, $post);
 
         $form -> handleRequest($request);
 
         if ($form -> isSubmitted() && $form -> isValid()) {
-            $entityManager -> persist($post);
-            $entityManager -> flush();
+            $this -> entityManager -> persist($post);
+            $this -> entityManager -> flush();
 
             $this -> addFlash("status", "Post Created Successfully");
 
@@ -74,13 +73,13 @@ final class PostController extends AbstractController
     }
 
     #[Route("/{id<\d+>}/edit", name: "post_edit")]
-    public function edit(Post $post, Request $request, EntityManagerInterface $entityManager): Response {
+    public function edit(Post $post, Request $request): Response {
         $form = $this -> createForm(PostType::class, $post);
 
         $form -> handleRequest($request);
 
         if ($form -> isSubmitted() && $form -> isValid()) {
-            $entityManager -> flush();
+            $this -> entityManager -> flush();
 
             $this -> addFlash("status", "Post Edited Successfully");
 
@@ -91,10 +90,10 @@ final class PostController extends AbstractController
     }
 
     #[Route("/{id<\d+>}/delete", name: "post_delete")]
-    public function delete(Request $request, Post $post, EntityManagerInterface $entityManager): Response {
+    public function delete(Request $request, Post $post): Response {
         if ($request -> isMethod("POST")) {
-            $entityManager -> remove($post);
-            $entityManager -> flush();
+            $this -> entityManager -> remove($post);
+            $this -> entityManager -> flush();
 
             $this -> addFlash("status", "Post Deleted Successfully");
 
