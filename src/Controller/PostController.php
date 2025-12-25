@@ -4,15 +4,19 @@ namespace App\Controller;
 
 use App\Entity\Comment;
 use App\Entity\Post;
+use App\Entity\User;
 use App\Form\CommentType;
 use App\Form\PostType;
 use App\Repository\PostRepository;
+use App\Security\Voter\PostVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route("/post")]
 final class PostController extends AbstractController
@@ -36,7 +40,7 @@ final class PostController extends AbstractController
     }
 
     #[Route("/{id<\d+>}", name: "post_show")]
-    public function show(Post $post, Request $request): Response {
+    public function show(Post $post, Request $request, #[CurrentUser] User $user): Response {
         $comments = $post -> getComments();
         $comment = new Comment();
 
@@ -45,6 +49,7 @@ final class PostController extends AbstractController
 
         if ($commentForm -> isSubmitted() && $commentForm -> isValid()) {
             $comment -> setPost($post);
+            $comment -> setUser($user);
 
             $this -> entityManager -> persist($comment);
             $this -> entityManager -> flush();
@@ -58,13 +63,16 @@ final class PostController extends AbstractController
     }
 
     #[Route("/new", name: "post_new")]
-    public function new(Request $request): Response {
+    public function new(Request $request, #[CurrentUser] User $user): Response {
         $post = new Post();
+
         $form = $this -> createForm(PostType::class, $post);
 
         $form -> handleRequest($request);
 
         if ($form -> isSubmitted() && $form -> isValid()) {
+            $post -> setUser($user);
+
             $this -> entityManager -> persist($post);
             $this -> entityManager -> flush();
 
@@ -77,6 +85,7 @@ final class PostController extends AbstractController
     }
 
     #[Route("/{id<\d+>}/edit", name: "post_edit")]
+    #[IsGranted("edit", "post")]
     public function edit(Post $post, Request $request): Response {
         $form = $this -> createForm(PostType::class, $post);
 
@@ -94,6 +103,7 @@ final class PostController extends AbstractController
     }
 
     #[Route("/{id<\d+>}/delete", name: "post_delete")]
+    #[IsGranted("delete", "post")]
     public function delete(Request $request, Post $post): Response {
         if ($request -> isMethod("POST")) {
             $this -> entityManager -> remove($post);

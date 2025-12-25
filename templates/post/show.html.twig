@@ -5,6 +5,8 @@
 {% block body %}
     <h1>{{ post.title }}</h1>
 
+    <p>By {{ post.user.email }}</p>
+
     <div>
         {{ post.content }}
     </div>
@@ -16,7 +18,7 @@
 
         {% for comment in comments %}
             <div>
-                <p>{{ comment.content }}</p>
+                <p>{{ comment.user.email }} | {{ comment.content }}</p>
             </div>
         {% endfor %}
 
@@ -25,8 +27,10 @@
         {{ form(commentForm) }}
     </div>
 
-    <hr>
+    {% if is_granted("edit", post) %}
+        <hr>
 
-    <a href="{{ path('post_edit', { id: post.id }) }}">Edit</a>
-    <a href="{{ path('post_delete', { id: post.id }) }}">Delete</a>
+        <a href="{{ path('post_edit', { id: post.id }) }}">Edit</a>
+        <a href="{{ path('post_delete', { id: post.id }) }}">Delete</a>
+    {% endif %}
 {% endblock %}
