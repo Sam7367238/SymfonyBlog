@@ -37,8 +37,8 @@ security:
     # Note: Only the *first* matching rule is applied
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
-        - { path: ^/logout, roles: ROLE_USER }
-        - { path: ^/post, roles: ROLE_USER }
+        - { path: ^/logout, roles: IS_AUTHENTICATED }
+        - { path: ^/post, roles: IS_AUTHENTICATED }
         # - { path: ^/login, roles: PUBLIC_ACCESS }
         # - { path: ^/register, roles: PUBLIC_ACCESS }
 

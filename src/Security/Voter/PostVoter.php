@@ -26,19 +26,16 @@ final class PostVoter extends Voter
 
         // if the user is anonymous, do not grant access
         if (!$user instanceof UserInterface) {
+            $vote ?-> addReason("You are not logged in.");
             return false;
         }
 
         // ... (check conditions and return true to grant permission) ...
-        switch ($attribute) {
-            case self::EDIT:
-                return $user -> getId() === $subject -> getUser() -> getId();
-                break;
-
-            case self::DELETE:
-                return $user -> getId() === $subject -> getUser() -> getId();
-                break;
+        if ($user === $subject -> getUser()) {
+            return true;
         }
+
+        $vote ?-> addReason("You are not the owner of this post.");
 
         return false;
     }

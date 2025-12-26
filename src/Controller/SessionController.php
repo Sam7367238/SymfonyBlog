@@ -7,6 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SessionController extends AbstractController
@@ -15,7 +16,7 @@ class SessionController extends AbstractController
     public function login(#[CurrentUser] ?User $user, AuthenticationUtils $authenticationUtils): Response
     {
         if ($user) {
-            throw $this -> createAccessDeniedException();
+            return $this -> redirectToRoute("app_home");
         }
         
         // get the login error if there is one
