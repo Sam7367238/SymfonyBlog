@@ -13,9 +13,11 @@
         {% endblock %}
     </head>
     <body>
-        <nav>
-            <a href="{{ path('post_index') }}">Posts</a>
-        </nav>
+        {% if is_granted("IS_AUTHENTICATED") %}
+            <nav>
+                <a href="{{ path('post_index') }}">Posts</a>
+            </nav>
+        {% endif %}
 
         {% for message in app.flashes("status") %}
             <div>{{ message }}</div>
