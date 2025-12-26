@@ -9,8 +9,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 final class PostVoter extends Voter
 {
-    public const EDIT = "edit";
-    public const DELETE = "delete";
+    public const EDIT = 'edit';
+    public const DELETE = 'delete';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
@@ -26,16 +26,17 @@ final class PostVoter extends Voter
 
         // if the user is anonymous, do not grant access
         if (!$user instanceof UserInterface) {
-            $vote ?-> addReason("You are not logged in.");
+            $vote?->addReason('You are not logged in.');
+
             return false;
         }
 
         // ... (check conditions and return true to grant permission) ...
-        if ($user === $subject -> getUser()) {
+        if ($user === $subject->getUser()) {
             return true;
         }
 
-        $vote ?-> addReason("You are not the owner of this post.");
+        $vote?->addReason('You are not the owner of this post.');
 
         return false;
     }
