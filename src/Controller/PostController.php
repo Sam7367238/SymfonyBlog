@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/post')]
+#[Route('/post', 'post_')]
 final class PostController extends AbstractController
 {
     public function __construct(
@@ -26,11 +26,13 @@ final class PostController extends AbstractController
     ) {
     }
 
-    #[Route('/', name: 'post_index')]
+    #[Route('/', name: 'index')]
     public function index(Request $request, PaginatorInterface $paginator): Response
     {
+        $query = $this->postRepository->createQueryBuilder('p');
+
         $posts = $paginator->paginate(
-            $this->postRepository->findAll(),
+            $query,
             $request->query->getInt('page', 1),
             15
         );
@@ -38,7 +40,7 @@ final class PostController extends AbstractController
         return $this->render('post/index.html.twig', compact('posts'));
     }
 
-    #[Route("/{id<\d+>}", name: 'post_show')]
+    #[Route("/{id<\d+>}", name: 'show')]
     public function show(Post $post, Request $request, #[CurrentUser] User $user): Response
     {
         $comments = $post->getComments();
@@ -62,7 +64,7 @@ final class PostController extends AbstractController
         return $this->render('post/show.html.twig', compact('post', 'commentForm', 'comments'));
     }
 
-    #[Route('/new', name: 'post_new')]
+    #[Route('/new', name: 'new')]
     public function new(Request $request, #[CurrentUser] User $user): Response
     {
         $post = new Post();
@@ -85,7 +87,7 @@ final class PostController extends AbstractController
         return $this->render('post/new.html.twig', compact('form'));
     }
 
-    #[Route("/{id<\d+>}/edit", name: 'post_edit')]
+    #[Route("/{id<\d+>}/edit", name: 'edit')]
     #[IsGranted('edit', 'post')]
     public function edit(Post $post, Request $request): Response
     {
@@ -104,7 +106,7 @@ final class PostController extends AbstractController
         return $this->render('post/edit.html.twig', compact('form'));
     }
 
-    #[Route("/{id<\d+>}/delete", name: 'post_delete')]
+    #[Route("/{id<\d+>}/delete", name: 'delete')]
     #[IsGranted('delete', 'post')]
     public function delete(Request $request, Post $post): Response
     {
